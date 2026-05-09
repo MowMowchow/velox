@@ -24,6 +24,7 @@
 #include "velox/common/base/Exceptions.h"
 #include "velox/common/base/Nulls.h"
 #include "velox/common/base/Status.h"
+#include "velox/external/charconv_int128/charconv_int128.h"
 #include "velox/type/Type.h"
 
 namespace facebook::velox {
@@ -356,8 +357,8 @@ class DecimalUtil {
       *writePosition++ = '0';
       if (isScientific && scale > kMinScientificNotationScale) {
         *writePosition++ = 'E';
-        auto exp =
-            std::to_chars(writePosition, startPosition + maxSize, -scale);
+        auto exp = facebook::velox::charconv::to_chars_int128(
+            writePosition, startPosition + maxSize, -scale);
         VELOX_DCHECK_EQ(
             exp.ec,
             std::errc(),
@@ -384,7 +385,7 @@ class DecimalUtil {
           // This is consistent with Spark's behavior.
           const auto digits = countDigits(unscaledValue);
           auto coefficientBuf = std::vector<char>(digits);
-          const auto coefficient = std::to_chars(
+          const auto coefficient = facebook::velox::charconv::to_chars_int128(
               coefficientBuf.data(),
               coefficientBuf.data() + digits,
               unscaledValue);
@@ -402,7 +403,7 @@ class DecimalUtil {
           }
           *writePosition++ = 'E';
           const auto adjusted = digits - 1 - scale;
-          auto exp = std::to_chars(
+          auto exp = facebook::velox::charconv::to_chars_int128(
               writePosition, writePosition + maxSize - digits - 2, adjusted);
           VELOX_DCHECK_EQ(
               exp.ec,
@@ -413,7 +414,7 @@ class DecimalUtil {
           return writePosition - startPosition;
         }
       }
-      auto [position, errorCode] = std::to_chars(
+      auto [position, errorCode] = facebook::velox::charconv::to_chars_int128(
           writePosition,
           writePosition + maxSize,
           unscaledValue / DecimalUtil::kPowersOfTen[scale]);
@@ -432,8 +433,8 @@ class DecimalUtil {
         std::memset(writePosition, '0', numLeadingZeros);
         writePosition += numLeadingZeros;
         // Append remaining fraction digits.
-        auto result =
-            std::to_chars(writePosition, writePosition + maxSize, fraction);
+        auto result = facebook::velox::charconv::to_chars_int128(
+            writePosition, writePosition + maxSize, fraction);
         VELOX_DCHECK_EQ(
             result.ec,
             std::errc(),

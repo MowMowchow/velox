@@ -18,6 +18,7 @@ add_executable(
   CastRegistryTest.cpp
   ConversionsTest.cpp
   DecimalTest.cpp
+  DecimalUtilTest.cpp
   FastDateTest.cpp
   FilterTest.cpp
   FilterSerDeTest.cpp
