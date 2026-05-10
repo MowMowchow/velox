@@ -41,7 +41,11 @@ if(VELOX_MONO_LIBRARY)
   add_dependencies(velox velox_signature_gen_src)
 endif()
 
-include_directories(${PROJECT_BINARY_DIR})
+if(VELOX_MONO_LIBRARY)
+  target_include_directories(velox PRIVATE ${PROJECT_BINARY_DIR})
+else()
+  include_directories(${PROJECT_BINARY_DIR})
+endif()
 include_directories(${FLEX_INCLUDE_DIRS})
 velox_add_library(
   velox_signature_parser
